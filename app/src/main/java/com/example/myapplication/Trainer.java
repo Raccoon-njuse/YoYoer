@@ -18,7 +18,6 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.myapplication.Entity.CRUD;
 import com.example.myapplication.Entity.Trick;
 import com.example.myapplication.Entity.TrickAdapter;
-import com.example.myapplication.Entity.TrickDatabase;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -57,7 +56,7 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
         trainer_add_item = findViewById(R.id.trainer_add_item);
         trainer_trick_list = findViewById(R.id.trainer_trick_list);
         trickAdapter = new TrickAdapter(getApplicationContext(), trickList);
-        refreshListView();
+        updateListAndNotify();
         trainer_trick_list.setAdapter(trickAdapter);
         trainer_trick_list.setOnItemClickListener(this);
         trainer_toolBar = findViewById(R.id.trainer_toolBar);
@@ -80,28 +79,54 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
 
     /**
      * 实现FragmentActivity的获取返回值方法，用于处理上一个活动返回的值
+     * 根据intent的返回码，对数据库进行不同的处理
+     * 然后交由updateAndNotify函数处理
+     * 1. returnMode = -1 不处理
+     * 2. returnMode = 0 新建一个
+     * 3. returnMode = 1 更新一个
      * @param requestCode 请求码
      * @param resultCode 结果码
      * @param data 意图数据，即返回值
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        int returnMode;
+        long id;
+        returnMode = data.getExtras().getInt("mode", -1);
+        id = data.getExtras().getLong("id", 0);
+        if (returnMode == 1) {
+            String content = data.getExtras().getString("content");
+            String time = data.getExtras().getString("time");
+            int tag = data.getExtras().getInt("tag", -1);
+            Trick trick_to_update = new Trick(content, time, tag);
+            trick_to_update.setId(id);
+            CRUD op = new CRUD(context);
+            op.open();
+            op.updateItem(trick_to_update);
+            op.close();
+        } else if (returnMode == 0) {
+            String content = data.getExtras().getString("content");
+            String time = data.getExtras().getString("time");
+            int tag = data.getExtras().getInt("tag", 1);
+            Trick trick_to_new = new Trick(content, time, tag);
+            CRUD op = new CRUD(context);
+            op.open();
+            op.addItem(trick_to_new);
+            op.close();
+        } else {
+            //Do nothing
+        }
+        updateListAndNotify();
         super.onActivityResult(requestCode, resultCode, data);
-        String content = data.getStringExtra("content");
-        String time = data.getStringExtra("time");
-        Trick trick = new Trick(content, time, 1);
-        CRUD op = new CRUD(context);
-        op.open();
-        op.addItem(trick);
-        op.close();
-        refreshListView();
     }
 
     /**
      * 刷新函数，用于在进入Trainer页面或者从edit页面返回时调用
      * 用当前上下文打开CRUD数据库，清空trickList并重新add所有元素，通知适配器更改
+     * 1. 进入Trainer页面时，notify语句本质上不起作用，因为此时还没有setAdapter
+     * 2. 从编辑页面返回时，为避免反复setAdapter造成性能开销，采用了notify方法
      */
-    public void refreshListView() {
+    public void updateListAndNotify() {
         CRUD op = new CRUD(context);
         op.open();
         //set adapter
