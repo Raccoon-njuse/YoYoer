@@ -3,6 +3,8 @@
     <style name="Base.Theme.MyApplication" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="menu_delete_all">@drawable/baseline_delete_forever_24</item>
+        <item name="menu_delete_one">@drawable/baseline_delete_24</item>
     </style>
 
     <style name="Theme.MyApplication" parent="Base.Theme.MyApplication" />

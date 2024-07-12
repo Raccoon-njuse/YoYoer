@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--attr定义的属性必须在themes中被赋值才有效，参考https://www.jianshu.com/p/1688fd4add0b-->
+<resources>
+    <attr name="menu_delete_all" format="string"/>
+    <attr name="menu_delete_one" format="string"/>
+</resources>

@@ -3,6 +3,7 @@ package com.example.myapplication;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -60,9 +61,11 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
         trainer_trick_list.setAdapter(trickAdapter);
         trainer_trick_list.setOnItemClickListener(this);
         trainer_toolBar = findViewById(R.id.trainer_toolBar);
+        trainer_toolBar.setTitle("招式列表");
         setSupportActionBar(trainer_toolBar);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        trainer_toolBar.setNavigationIcon(R.drawable.baseline_menu_24);
 
         trainer_add_item.setOnClickListener(new View.OnClickListener() {
             /**
@@ -70,7 +73,7 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
              */
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Trainer.this, Trainer_add_item_edit.class);
+                Intent intent = new Intent(Trainer.this, Trainer_edit.class);
                 intent.putExtra("mode", 4);
                 startActivityForResult(intent, 0);
             }
@@ -149,7 +152,7 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
         switch (parent.getId()) {
             case R.id.trainer_trick_list:
                 Trick curr = (Trick) parent.getItemAtPosition(position);
-                Intent intent = new Intent(Trainer.this, Trainer_add_item_edit.class);
+                Intent intent = new Intent(Trainer.this, Trainer_edit.class);
                 intent.putExtra("content", curr.getContent());
                 intent.putExtra("id", curr.getId());
                 intent.putExtra("time", curr.getTime());
@@ -158,5 +161,15 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
                 startActivityForResult(intent, 1);
                 break;
         }
+    }
+
+    /**
+     * 渲染菜单的方法
+     * @param menu The options menu in which you place your items.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.trainer_menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 }

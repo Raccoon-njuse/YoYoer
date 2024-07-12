@@ -6,7 +6,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Trainer_add_item_edit">
+    tools:context=".Trainer_edit">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/trainer_edit_toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp">
+
+    </androidx.appcompat.widget.Toolbar>
 
     <EditText
         android:id="@+id/trainer_add_item_editText"
