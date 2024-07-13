@@ -1,4 +1,4 @@
-package com.example.myapplication.Entity;
+package com.example.YoYoer.Entity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,9 +10,8 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
-import com.example.myapplication.R;
+import com.example.YoYoer.R;
 
-import java.lang.ref.PhantomReference;
 import java.util.List;
 
 public class TrickAdapter extends BaseAdapter implements Filterable {

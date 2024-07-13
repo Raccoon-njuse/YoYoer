@@ -1,4 +1,4 @@
-package com.example.myapplication.Entity;
+package com.example.YoYoer.Entity;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -78,5 +78,10 @@ public class CRUD {
 
     public void removeItem(Trick trick) {
         sqLiteDatabase.delete(TrickDatabase.TABLE_NAME, TrickDatabase.ID + "=" + trick.getId(), null);
+    }
+
+    public void clear() {
+        sqLiteDatabase.delete(TrickDatabase.TABLE_NAME, null, null);
+        sqLiteDatabase.execSQL("update sqlite_sequence set seq=0 where name='tricks'");
     }
 }

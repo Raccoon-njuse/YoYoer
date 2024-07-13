@@ -1,4 +1,4 @@
-package com.example.myapplication.Entity;
+package com.example.YoYoer.Entity;
 
 public class Trick {
     private long id;

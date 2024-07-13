@@ -1,14 +1,18 @@
-package com.example.myapplication;
+package com.example.YoYoer;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -16,9 +20,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.myapplication.Entity.CRUD;
-import com.example.myapplication.Entity.Trick;
-import com.example.myapplication.Entity.TrickAdapter;
+import com.example.YoYoer.Entity.CRUD;
+import com.example.YoYoer.Entity.Trick;
+import com.example.YoYoer.Entity.TrickAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -116,6 +120,13 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
             op.open();
             op.addItem(trick_to_new);
             op.close();
+        } else if (returnMode == 2) {
+            Trick trick_to_delete = new Trick();
+            trick_to_delete.setId(id);
+            CRUD op = new CRUD(context);
+            op.open();
+            op.removeItem(trick_to_delete);
+            op.close();
         } else {
             //Do nothing
         }
@@ -124,8 +135,8 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
     }
 
     /**
-     * 刷新函数，用于在进入Trainer页面或者从edit页面返回时调用
-     * 用当前上下文打开CRUD数据库，清空trickList并重新add所有元素，通知适配器更改
+     * 刷新适配器函数
+     * 用当前上下文打开CRUD数据库，清空适配器的trickList变量并重新add所有元素，通知适配器更改
      * 1. 进入Trainer页面时，notify语句本质上不起作用，因为此时还没有setAdapter
      * 2. 从编辑页面返回时，为避免反复setAdapter造成性能开销，采用了notify方法
      */
@@ -171,5 +182,42 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.trainer_menu, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * 监听顶栏删除键
+     * 当按下删除全部按钮，弹出对话框询问
+     * 是：删除全部元素，将id下标改成从0开始
+     * 否：取消对话框
+     * @param item The menu item that was selected.
+     *
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.trainer_menu_delete_all:
+                new AlertDialog.Builder(Trainer.this)
+                        .setMessage("确认删除全部吗？")
+                        .setPositiveButton("删除", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                CRUD op = new CRUD(context);
+                                op.open();
+                                op.clear();
+                                op.close();
+                                updateListAndNotify();
+                            }
+                        })
+                        .setNegativeButton("否", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .create().show();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

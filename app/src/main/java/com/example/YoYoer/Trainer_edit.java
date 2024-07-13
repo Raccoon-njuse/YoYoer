@@ -1,14 +1,18 @@
-package com.example.myapplication;
+package com.example.YoYoer;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
@@ -71,7 +75,7 @@ public class Trainer_edit extends AppCompatActivity {
              */
             @Override
             public void onClick(View v) {
-                autoSetResultIntent();
+                autoSetResultIntent_keyCode_back();
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -102,8 +106,9 @@ public class Trainer_edit extends AppCompatActivity {
         if (keyCode == KeyEvent.KEYCODE_HOME) {
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_BACK) {
-            autoSetResultIntent();
+            autoSetResultIntent_keyCode_back();
             setResult(RESULT_OK, intent);
+
             finish();
             return true;
         }
@@ -111,13 +116,13 @@ public class Trainer_edit extends AppCompatActivity {
     }
 
     /**
-     * 根据启动模式和用户交互判断应当给返回intent注入什么mode
+     * 当按下返回，根据启动模式和用户交互判断应当给返回intent注入什么mode
      * 1. 编辑模式，用户无输入，并且tag未改变，则返回mode=-1
      * 2. 编辑模式，用户有输入或者tag已经改变，将新的内容注入intent，返回mode=1
      * 3. 新建模式，用户无输入，返回mode=-1
      * 4. 新建模式，用户有输入，返回mode=0，将用户输入的信息注入intent返回上级活动
      */
-    public void autoSetResultIntent() {
+    public void autoSetResultIntent_keyCode_back() {
         if (openMode == 4) {
             if (editText.getText().toString().length() == 0) {
                 intent.putExtra("mode", -1);
@@ -141,16 +146,6 @@ public class Trainer_edit extends AppCompatActivity {
     }
 
     /**
-     * Util方法，日期转str
-     * @return 代表日期的字符串
-     */
-    public String dateToStr(){
-        Date date = new Date();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return simpleDateFormat.format(date);
-    }
-
-    /**
      * 渲染菜单的方法
      * @param menu The options menu in which you place your items.
      */
@@ -158,5 +153,55 @@ public class Trainer_edit extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.trainer_edit_menu, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * 监听顶栏菜单方法
+     * 当删除按钮按下时，弹出窗口提醒是否删除，调用AlertDialog
+     * 1.编辑模式-是 将id注入intent返回，mode=2，调用数据库删除
+     * 2.新建模式-是 什么都不做，等同于直接返回
+     * 3.否 取消对话框
+     * @param item The menu item that was selected.
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.trainer_edit_menu_delete:
+                new AlertDialog.Builder(Trainer_edit.this)
+                        .setMessage("确认删除这个招式吗？")
+                        .setPositiveButton("删除", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (openMode == 4) { // new item
+                                    intent.putExtra("mode", -1);
+                                    setResult(RESULT_OK, intent);
+                                } else { // existing item
+                                    intent.putExtra("id", id);
+                                    intent.putExtra("mode", 2);
+                                    setResult(RESULT_OK, intent);
+                                }
+                                finish();
+                            }
+                        })
+                        .setNegativeButton("否", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .create().show();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Util方法，日期转str
+     * @return 代表日期的字符串
+     */
+    public String dateToStr(){
+        Date date = new Date();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return simpleDateFormat.format(date);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.myapplication.Entity;
+package com.example.YoYoer.Entity;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

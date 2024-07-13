@@ -9,7 +9,7 @@ plugins {
 
 android {
     defaultConfig {
-        applicationId = "com.example.myapplication"
+        applicationId = "com.example.YoYoer"
         minSdk = 28
         targetSdk = 34
         versionCode = 1
@@ -66,7 +66,7 @@ android {
     }
 
 
-    namespace = "com.example.myapplication"
+    namespace = "com.example.YoYoer"
     compileSdk = 34
 
 
