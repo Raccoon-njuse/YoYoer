@@ -8,11 +8,19 @@
     android:orientation="vertical"
     tools:context=".Clicker">
 
-    <ImageView
-        android:id="@+id/clicker_return"
-        android:layout_width="45dp"
-        android:layout_height="40dp"
-        app:srcCompat="?attr/actionModeCloseDrawable" />
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/clicker_toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp">
+    </androidx.appcompat.widget.Toolbar>
+
+<!--    <ImageView-->
+<!--        android:id="@+id/clicker_return"-->
+<!--        android:layout_width="45dp"-->
+<!--        android:layout_height="40dp"-->
+<!--        app:srcCompat="?attr/actionModeCloseDrawable" />-->
 
     <LinearLayout
         android:layout_width="match_parent"

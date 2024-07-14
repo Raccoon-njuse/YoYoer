@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,6 +31,12 @@ import java.util.List;
 
 
 public class Trainer extends AppCompatActivity implements AdapterView.OnItemClickListener{
+
+    public static final int ADD_ITEM_REQUEST_CODE = 0;
+
+    public static final int EDIT_ITEM_REQUEST_CODE = 1;
+
+    public  static final int ADD_FROM_EXCEL_REQUEST_CODE = 2;
 
     /** 上下文 */
     private Context context = this;
@@ -69,8 +76,8 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
         setSupportActionBar(trainer_toolBar);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        trainer_toolBar.setNavigationIcon(R.drawable.baseline_menu_24);
-
+        trainer_toolBar.setNavigationOnClickListener(v -> finish());
+//        trainer_toolBar.setNavigationIcon(R.drawable.baseline_menu_24);
         trainer_add_item.setOnClickListener(new View.OnClickListener() {
             /**
              * 针对add按钮实现OnClickListener方法，新建intent，注入mode=4为新建模式，执行跳转到edit活动
@@ -79,7 +86,7 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
             public void onClick(View v) {
                 Intent intent = new Intent(Trainer.this, Trainer_edit.class);
                 intent.putExtra("mode", 4);
-                startActivityForResult(intent, 0);
+                startActivityForResult(intent, ADD_ITEM_REQUEST_CODE);
             }
         });
     }
@@ -97,40 +104,48 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        int returnMode;
-        long id;
-        returnMode = data.getExtras().getInt("mode", -1);
-        id = data.getExtras().getLong("id", 0);
-        if (returnMode == 1) {
-            String content = data.getExtras().getString("content");
-            String time = data.getExtras().getString("time");
-            int tag = data.getExtras().getInt("tag", -1);
-            Trick trick_to_update = new Trick(content, time, tag);
-            trick_to_update.setId(id);
-            CRUD op = new CRUD(context);
-            op.open();
-            op.updateItem(trick_to_update);
-            op.close();
-        } else if (returnMode == 0) {
-            String content = data.getExtras().getString("content");
-            String time = data.getExtras().getString("time");
-            int tag = data.getExtras().getInt("tag", 1);
-            Trick trick_to_new = new Trick(content, time, tag);
-            CRUD op = new CRUD(context);
-            op.open();
-            op.addItem(trick_to_new);
-            op.close();
-        } else if (returnMode == 2) {
-            Trick trick_to_delete = new Trick();
-            trick_to_delete.setId(id);
-            CRUD op = new CRUD(context);
-            op.open();
-            op.removeItem(trick_to_delete);
-            op.close();
-        } else {
-            //Do nothing
+        switch (requestCode) {
+            case ADD_ITEM_REQUEST_CODE:
+            case EDIT_ITEM_REQUEST_CODE:
+                int returnMode;
+                long id;
+                returnMode = data.getExtras().getInt("mode", -1);
+                id = data.getExtras().getLong("id", 0);
+                if (returnMode == 1) {
+                    String content = data.getExtras().getString("content");
+                    String time = data.getExtras().getString("time");
+                    int tag = data.getExtras().getInt("tag", -1);
+                    Trick trick_to_update = new Trick(content, time, tag);
+                    trick_to_update.setId(id);
+                    CRUD op = new CRUD(context);
+                    op.open();
+                    op.updateItem(trick_to_update);
+                    op.close();
+                } else if (returnMode == 0) {
+                    String content = data.getExtras().getString("content");
+                    String time = data.getExtras().getString("time");
+                    int tag = data.getExtras().getInt("tag", 1);
+                    Trick trick_to_new = new Trick(content, time, tag);
+                    CRUD op = new CRUD(context);
+                    op.open();
+                    op.addItem(trick_to_new);
+                    op.close();
+                } else if (returnMode == 2) {
+                    Trick trick_to_delete = new Trick();
+                    trick_to_delete.setId(id);
+                    CRUD op = new CRUD(context);
+                    op.open();
+                    op.removeItem(trick_to_delete);
+                    op.close();
+                } else {
+                    //Do nothing
+                }
+                updateListAndNotify();
+                break;
+            case ADD_FROM_EXCEL_REQUEST_CODE:
+                Uri uri = data.getData();
+                break;
         }
-        updateListAndNotify();
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -169,7 +184,7 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
                 intent.putExtra("time", curr.getTime());
                 intent.putExtra("mode", 3); //信号量，click to edit模式
                 intent.putExtra("tag", curr.getTag());
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, EDIT_ITEM_REQUEST_CODE);
                 break;
         }
     }
@@ -217,7 +232,31 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
                         })
                         .create().show();
                 break;
+            case R.id.trainer_menu_add_from_excel:
+                new AlertDialog.Builder(Trainer.this)
+                        .setMessage("从excel导入")
+                        .setPositiveButton("选择文件", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                openDocument();
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .create().show();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void openDocument() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        startActivityForResult(intent, ADD_FROM_EXCEL_REQUEST_CODE);
     }
 }

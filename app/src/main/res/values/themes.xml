@@ -5,6 +5,7 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="menu_delete_all">@drawable/baseline_delete_forever_24</item>
         <item name="menu_delete_one">@drawable/baseline_delete_24</item>
+        <item name="add_from_excel">@drawable/daoru</item>
     </style>
 
     <style name="Theme.YoYoer" parent="Base.Theme.YoYoer" />

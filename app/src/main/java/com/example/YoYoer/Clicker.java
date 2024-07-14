@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -52,9 +53,12 @@ public class Clicker extends AppCompatActivity implements View.OnClickListener, 
         Button button_clicker_reset = findViewById(R.id.clicker_reset);
         button_clicker_reset.setOnLongClickListener(Clicker.this);
 
-        ImageView imageView_return = findViewById(R.id.clicker_return);
-        imageView_return.setOnClickListener(this);
-
+        Toolbar clicker_toolBar = findViewById(R.id.clicker_toolBar);
+        clicker_toolBar.setTitle("打分器");
+        setSupportActionBar(clicker_toolBar);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        clicker_toolBar.setNavigationOnClickListener(v -> finish());
     }
 
     @Override
@@ -82,9 +86,6 @@ public class Clicker extends AppCompatActivity implements View.OnClickListener, 
             clicker_break_up_num = view.findViewById(R.id.clicker_break_up_num);
             int i = Integer.parseInt(clicker_break_up_num.getText().toString()) + 1;
             clicker_break_up_num.setText(String.valueOf(i));
-        }
-        if (view.getId() == R.id.clicker_return) {
-            finish();
         }
     }
 
