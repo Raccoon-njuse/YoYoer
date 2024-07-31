@@ -1,5 +1,7 @@
 package com.example.YoYoer.Entity;
 
+import static com.example.YoYoer.Global.Global.DIFFICULTY_TAG_TABLE;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -10,6 +12,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import com.example.YoYoer.Global.Global;
 import com.example.YoYoer.R;
 
 import java.util.List;
@@ -48,10 +51,12 @@ public class TrickAdapter extends BaseAdapter implements Filterable {
         View v = View.inflate(context, R.layout.trick_layout, null);
         TextView trick_layout_tv_content = v.findViewById(R.id.trick_layout_tv_content);
         TextView trick_layout_tv_time = v.findViewById(R.id.trick_layout_tv_time);
+        TextView trick_layout_tv_tag = v.findViewById(R.id.trick_layout_tv_tag);
 
         //Set text fot TextView
         trick_layout_tv_content.setText(trickList.get(position).getContent());
         trick_layout_tv_time.setText(trickList.get(position).getTime());
+        trick_layout_tv_tag.setText(DIFFICULTY_TAG_TABLE.get(trickList.get(position).getTag()));
         v.setTag(trickList.get(position).getId());
         return v;
     }

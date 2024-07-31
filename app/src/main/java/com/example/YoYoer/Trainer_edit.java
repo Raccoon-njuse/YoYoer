@@ -19,6 +19,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.YoYoer.Global.Global;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -129,7 +131,7 @@ public class Trainer_edit extends AppCompatActivity {
             } else {
                 intent.putExtra("mode", 0);
                 intent.putExtra("content", editText.getText().toString());
-                intent.putExtra("time", dateToStr());
+                intent.putExtra("time", Global.dateToStr());
                 intent.putExtra("tag", tag);
             }
         } else {
@@ -140,7 +142,7 @@ public class Trainer_edit extends AppCompatActivity {
                 intent.putExtra("content", editText.getText().toString());
                 intent.putExtra("id", id);
                 intent.putExtra("tag", tag);
-                intent.putExtra("time", dateToStr());
+                intent.putExtra("time", Global.dateToStr());
             }
         }
     }
@@ -195,13 +197,4 @@ public class Trainer_edit extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Util方法，日期转str
-     * @return 代表日期的字符串
-     */
-    public String dateToStr(){
-        Date date = new Date();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return simpleDateFormat.format(date);
-    }
 }

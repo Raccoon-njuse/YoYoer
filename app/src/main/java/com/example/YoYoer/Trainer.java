@@ -1,11 +1,14 @@
 package com.example.YoYoer;
 
+import static com.example.YoYoer.Global.Global.DIFFICULTY_TAG_TABLE;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,9 +27,17 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.YoYoer.Entity.CRUD;
 import com.example.YoYoer.Entity.Trick;
 import com.example.YoYoer.Entity.TrickAdapter;
+import com.example.YoYoer.Global.Global;
+import com.example.YoYoer.Utils.ExcelUtils;
+import com.example.YoYoer.Utils.UriUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.apache.poi.ss.formula.functions.T;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -92,12 +103,10 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
     }
 
     /**
-     * 实现FragmentActivity的获取返回值方法，用于处理上一个活动返回的值
-     * 根据intent的返回码，对数据库进行不同的处理
-     * 然后交由updateAndNotify函数处理
-     * 1. returnMode = -1 不处理
-     * 2. returnMode = 0 新建一个
-     * 3. returnMode = 1 更新一个
+     * 从上一个活动返回列表活动
+     * 1. 从新建活动返回 根据返回模式决定数据库操作（不变，更新，新建）并更新视图
+     * 2. 从编辑活动返回 同上
+     * 3. 从文件选择器活动返回 返回data可以直接转uri File， 读取并更新数据库，添加并更新视图
      * @param requestCode 请求码
      * @param resultCode 结果码
      * @param data 意图数据，即返回值
@@ -144,6 +153,20 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
                 break;
             case ADD_FROM_EXCEL_REQUEST_CODE:
                 Uri uri = data.getData();
+                File excelFile = UriUtils.uriToFileApiQ(uri, this);
+                if (ExcelUtils.isExcelFile(excelFile)) {
+                    try {
+                        String[][] table = ExcelUtils.readExcel(excelFile);
+                        ArrayList<Trick> list_to_add = tableToTrickList(table);
+                        CRUD op = new CRUD(context);
+                        op.open();
+                        for(Trick t : list_to_add) op.addItem(t);
+                        op.close();
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                updateListAndNotify();
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -238,7 +261,10 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
                         .setPositiveButton("选择文件", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                openDocument();
+                                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                intent.setType("*/*");
+                                startActivityForResult(intent, ADD_FROM_EXCEL_REQUEST_CODE);
                             }
                         })
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -253,10 +279,23 @@ public class Trainer extends AppCompatActivity implements AdapterView.OnItemClic
         return super.onOptionsItemSelected(item);
     }
 
-    private void openDocument() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        startActivityForResult(intent, ADD_FROM_EXCEL_REQUEST_CODE);
+    /**
+     * 将二维字符表转换为招式列表，添加默认元素
+     * TODO 表格硬编码
+     * @param table
+     * @return
+     */
+    private ArrayList<Trick> tableToTrickList(String[][] table) {
+        ArrayList<Trick> res = new ArrayList<>();
+        for (String[] col : table) {
+            if (col[0].equals("content")) continue;
+            String content = (col[0].equals("")) ? "dName" : col[0];
+            String time = (col[1].equals("")) ? Global.dateToStr() : col[1];
+            String tagContent = (col[2].equals("")) ? "default" : col[2];
+            int tag = DIFFICULTY_TAG_TABLE.indexOf(tagContent);
+            Trick trick = new Trick(content, time, tag);
+            res.add(trick);
+        }
+        return res;
     }
 }

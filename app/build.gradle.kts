@@ -10,7 +10,7 @@ plugins {
 android {
     defaultConfig {
         applicationId = "com.example.YoYoer"
-        minSdk = 28
+        minSdk = 29
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -107,6 +107,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(files("libs/poi-3.12-android-a.jar"))
+    implementation(files("libs/poi-ooxml-schemas-3.12-20150511-a.jar"))
+    implementation(files("libs/poi-ooxml-schemas-3.12-20150511-a.jar"))
+    implementation(libs.monitor)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
